@@ -3,14 +3,19 @@
 from burp import IBurpExtender
 from burp import IHttpListener
 from burp import IContextMenuFactory
+from burp import IIntruderPayloadGeneratorFactory
+from burp import IIntruderPayloadProcessor
+from burp import IIntruderPayloadGenerator
+
 from javax.swing import JMenuItem
 
 from base64 import b64decode, b64encode
 from urllib import quote, unquote
+import hashlib
 import pyaes
 
 
-class BurpExtender(IBurpExtender, IHttpListener, IContextMenuFactory):
+class BurpExtender(IBurpExtender, IHttpListener, IContextMenuFactory, IIntruderPayloadProcessor):
 
     def registerExtenderCallbacks(self, callbacks):
 
@@ -24,6 +29,8 @@ class BurpExtender(IBurpExtender, IHttpListener, IContextMenuFactory):
         self._callbacks.setExtensionName("Burp Crypto")
         # 注册一个 HTTP 监听器，那么当我们开启Burp监听的 HTTP 请求或收到的 HTTP 响应都会通知此监听器
         callbacks.registerHttpListener(self)
+        # register ourselves as an Intruder payload processor
+        callbacks.registerIntruderPayloadProcessor(self)
 
         # 注册菜单上下文
         # register message editor tab factory
@@ -96,6 +103,19 @@ class BurpExtender(IBurpExtender, IHttpListener, IContextMenuFactory):
     def decrypt(self, text):
         crypto = AESCrypto()
         return crypto.decrypt(text)
+
+    # ====================================
+    # 此段后开始爆破模块加密processror编写
+    # ====================================
+    # 设置processor名字
+    def getProcessorName(self):
+        return "test"
+
+    # 编写Payload具体代码，此处以md5为例
+    def processPayload(self, currentPayload, originalPayload, baseValue):
+        m = hashlib.md5()
+        m.update(originalPayload)
+        return m.hexdigest()
 
 
 class AESCrypto():
