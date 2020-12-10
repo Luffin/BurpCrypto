@@ -10,9 +10,12 @@
 ## 使用
 
 * 代码使用`Python`编写，需要`Jython`，也需要配置`site-packages`路径来使用第三方库。
-
 * **代码中已写上详细注释**，可直接修改对应代码增加加解密算法
 * 将py文件导入到BurpSuite中
+
+**2020/12/10日更新：**
+
+增加Intruder模块中的Payload Processor，可自定义代码处理Payload
 
 使用演示：
 
